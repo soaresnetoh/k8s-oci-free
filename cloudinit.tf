@@ -4,13 +4,9 @@ locals {
     "build-essential",
     "ca-certificates",
     "curl",
-    "docker.io",
     "jq",
-    "kubeadm",
-    "kubelet",
     "lsb-release",
     "make",
-    "prometheus-node-exporter",
     "python3-pip",
     "software-properties-common",
     "tmux",
@@ -31,12 +27,6 @@ data "cloudinit_config" "_" {
       package_upgrade: false
       packages:
       ${yamlencode(local.packages)}
-      apt:
-        sources:
-          kubernetes.list:
-            source: "deb https://apt.kubernetes.io/ kubernetes-xenial main"
-            key: |
-              ${indent(8, data.http.apt_repo_key.body)}
       users:
       - default
       - name: k8s
@@ -47,6 +37,19 @@ data "cloudinit_config" "_" {
         sudo: ALL=(ALL) NOPASSWD:ALL
         ssh_authorized_keys:
         - ${tls_private_key.ssh.public_key_openssh}
+      write_files:
+      - path: /home/k8s/.ssh/id_rsa
+        defer: true
+        owner: "k8s:k8s"
+        permissions: "0600"
+        content: |
+          ${indent(4, tls_private_key.ssh.private_key_pem)}
+      - path: /home/k8s/.ssh/id_rsa.pub
+        defer: true
+        owner: "k8s:k8s"
+        permissions: "0600"
+        content: |
+          ${indent(4, tls_private_key.ssh.public_key_openssh)}
       EOF
   }
 
@@ -62,37 +65,4 @@ data "cloudinit_config" "_" {
     EOF
   }
 
-}
-
-data "http" "apt_repo_key" {
-  url = "https://packages.cloud.google.com/apt/doc/apt-key.gpg.asc"
-}
-
-# The kubeadm token must follow a specific format:
-# - 6 letters/numbers
-# - a dot
-# - 16 letters/numbers
-
-resource "random_string" "token1" {
-  length  = 6
-  number  = true
-  lower   = true
-  special = false
-  upper   = false
-}
-
-resource "random_string" "token2" {
-  length  = 16
-  number  = true
-  lower   = true
-  special = false
-  upper   = false
-}
-
-locals {
-  kubeadm_token = format(
-    "%s.%s",
-    random_string.token1.result,
-    random_string.token2.result
-  )
 }

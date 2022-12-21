@@ -1,7 +1,7 @@
 
 # Projeto K8S-OCI
 
-Este projeto foi baseado no repositório de Jerrome que tem um projeto em terrraform para subir um cluster k8s usando somente a conta na camada free... Visite lá e conheça... é top: https://github.com/jpetazzo/ampernetacle
+Este projeto foi baseado no repositório de Jerrome que tem um projeto em terrraform para subir um cluster k8s usando somente a conta na camada free... Visite lá e conheça... é top: [Jérôme Petazzoni - Ampernetacle](https://github.com/jpetazzo/ampernetacle)
 
 =========================
 
